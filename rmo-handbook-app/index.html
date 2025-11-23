@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NALHN RMO O&G Handbook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <style>
+    :root {
+      /* Light theme default */
+      --bg: #f3f4f6;
+      --bg-soft: #e5e7eb;
+      --card-bg: #ffffff;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.12);
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --radius-lg: 16px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 10px 25px rgba(15, 23, 42, 0.12);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #020617;
+        --bg-soft: #020617;
+        --card-bg: #0b1220;
+        --accent: #22c55e;
+        --accent-soft: rgba(34, 197, 94, 0.12);
+        --text: #e5e7eb;
+        --muted: #9ca3af;
+        --border: #1f2937;
+        --shadow-soft: 0 18px 38px rgba(0, 0, 0, 0.5);
+      }
+      body {
+        background: radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 12px 12px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 8px 0 4px;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(
+        to bottom,
+        rgba(243, 244, 246, 0.96),
+        rgba(243, 244, 246, 0.88),
+        transparent
+      );
+    }
+
+    @media (prefers-color-scheme: dark) {
+      header {
+        background: linear-gradient(
+          to bottom,
+          rgba(2, 6, 23, 0.97),
+          rgba(2, 6, 23, 0.75),
+          transparent
+        );
+      }
+    }
+
+    .app-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .app-title-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title-main h1 {
+      font-size: 1.1rem;
+      margin: 0;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .app-title-main span {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: linear-gradient(135deg, var(--card-bg), var(--accent-soft));
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .search-bar input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .search-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 3px;
+      margin-bottom: 4px;
+    }
+
+    .tab {
+      flex-shrink: 0;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      font-size: 0.78rem;
+      border: 1px solid transparent;
+      color: var(--muted);
+      background: var(--bg-soft);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tab-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .tab.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .tab.active {
+        color: #bbf7d0;
+      }
+    }
+
+    .emergency-card {
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
+      background: var(--card-bg);
+      border: 1px solid #fecaca;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .pill-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: #fee2e2;
+      color: #b91c1c;
+      margin-bottom: 6px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .pill-label {
+        background: rgba(127, 29, 29, 0.85);
+        color: #fee2e2;
+      }
+    }
+
+    .emergency-card h2 {
+      font-size: 0.95rem;
+      margin: 0 0 6px;
+    }
+
+    .emergency-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+
+    .emergency-chip {
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+    }
+
+    .emergency-chip strong {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 1px;
+    }
+
+    .section-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .section-card {
+      border-radius: var(--radius-lg);
+      padding: 11px 11px 10px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .section-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      margin: 0;
+    }
+
+    .section-meta {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+    }
+
+    .section-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .section-chip {
+      font-size: 0.7rem;
+      padding: 3px 7px;
+      border-radius: var(--radius-pill);
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .section-body {
+      font-size: 0.8rem;
+      color: var(--text);
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+
+    .section-body p {
+      margin: 0 0 4px;
+    }
+
+    .section-body ul {
+      padding-left: 1.1rem;
+      margin: 0 0 4px;
+    }
+
+    .section-body li {
+      margin: 2px 0;
+    }
+
+    .section-body small {
+      color: var(--muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .favorite-toggle {
+      border: none;
+      background: transparent;
+      color: #facc15;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 0 2px 8px;
+      font-size: 0.9rem;
+    }
+
+    .favorite-toggle span {
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .favorite-toggle[aria-pressed="false"] span {
+      opacity: 0.4;
+    }
+
+    .favorite-toggle:focus-visible {
+      outline: 2px solid rgba(250, 204, 21, 0.7);
+      outline-offset: 2px;
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Data file (dynamic content from handbook) -->
+  <script src="handbook-data.js"></script>
+
+  <!-- React & Babel (no build step) -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <script type="text/babel">
+  const { useState, useEffect, useMemo } = React;
+
+  // Content comes from external data file so it can be updated separately
+  const SECTIONS = window.HANDBOOK_SECTIONS || [];
+
+  const CATEGORY_LABELS = {
+    emergency: "Emergency",
+    clinical: "Clinical Area",
+    logistics: "Shifts & Handover",
+    contacts: "Contacts",
+    training: "Training",
+    resources: "Resources",
+    favourites: "Favourites"
+  };
+
+  const TABS = [
+    { id: "all", label: "All", iconDot: true },
+    { id: "favourites", label: "Favourites" },
+    { id: "emergency", label: "Emergencies" },
+    { id: "clinical", label: "Clinical Areas" },
+    { id: "logistics", label: "Shifts & Handover" },
+    { id: "contacts", label: "Contacts" },
+    { id: "training", label: "Training" },
+    { id: "resources", label: "Resources" }
+  ];
+
+  const FAVORITES_KEY = "nalhn-rmo-handbook-favourites";
+
+  function loadFavorites() {
+    try {
+      const stored = window.localStorage.getItem(FAVORITES_KEY);
+      if (!stored) return new Set();
+      const arr = JSON.parse(stored);
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch (e) {
+      return new Set();
+    }
+  }
+
+  function saveFavorites(set) {
+    try {
+      const arr = Array.from(set);
+      window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(arr));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function EmergencyCard(props) {
+    var currentTab = props.currentTab;
+    var show =
+      currentTab === "all" ||
+      currentTab === "emergency" ||
+      currentTab === "logistics";
+
+    if (!show) return null;
+
+    return (
+      <section className="emergency-card">
+        <div className="pill-label">Emergency</div>
+        <h2>MER, Code Blue &amp; CAT 1 LSCS</h2>
+        <p style={{ fontSize: "0.8rem", margin: "0 0 6px" }}>
+          Dial <strong>33#</strong> for emergency (MER call, Code Blue, CAT 1 LSCS).
+        </p>
+        <div className="emergency-grid">
+          <div className="emergency-chip">
+            <strong>BAUH Registrar</strong>
+            Pager <code>#6043</code>
+          </div>
+          <div className="emergency-chip">
+            <strong>BAUH RMO</strong>
+            Pager <code>#6306</code>
+          </div>
+          <div className="emergency-chip">
+            <strong>O&amp;G Emergency Registrar</strong>
+            Pager <code>#6439</code>
+          </div>
+          <div className="emergency-chip">
+            <strong>Anaesthetics</strong>
+            Pager <code>#6032</code>
+          </div>
+          <div className="emergency-chip">
+            <strong>Neonatal Registrar</strong>
+            Pager <code>#47392</code>
+          </div>
+          <div className="emergency-chip">
+            <strong>Theatres</strong>
+            Ext <code>29266</code>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  function SectionCard(props) {
+    var section = props.section;
+    var isFavorite = props.isFavorite;
+    var onToggleFavorite = props.onToggleFavorite;
+
+    return (
+      <article className="section-card">
+        <div className="section-card-header">
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <h3 className="section-title">{section.title}</h3>
+            <button
+              className="favorite-toggle"
+              aria-pressed={isFavorite ? "true" : "false"}
+              aria-label={
+                isFavorite
+                  ? "Remove from favourites"
+                  : "Add to favourites"
+              }
+              onClick={onToggleFavorite}
+            >
+              <span>{isFavorite ? "★" : "☆"}</span>
+            </button>
+          </div>
+          <div className="section-meta">
+            {CATEGORY_LABELS[section.category] || ""}
+          </div>
+        </div>
+        {section.tags && section.tags.length ? (
+          <div className="section-chip-row">
+            {section.tags.map(function (tag) {
+              return (
+                <span key={tag} className="section-chip">
+                  {tag}
+                </span>
+              );
+            })}
+          </div>
+        ) : null}
+        <div
+          className="section-body"
+          dangerouslySetInnerHTML={{ __html: section.body }}
+        />
+      </article>
+    );
+  }
+
+  function App() {
+    const [search, setSearch] = useState("");
+    const [tab, setTab] = useState("all");
+    const [favorites, setFavorites] = useState(function () {
+      return loadFavorites();
+    });
+
+    useEffect(
+      function () {
+        saveFavorites(favorites);
+      },
+      [favorites]
+    );
+
+    const filteredSections = useMemo(
+      function () {
+        const query = search.trim().toLowerCase();
+        return SECTIONS.filter(function (sec) {
+          if (tab === "favourites" && !favorites.has(sec.id)) return false;
+          if (tab !== "all" && tab !== "favourites" && sec.category !== tab)
+            return false;
+
+          if (!query) return true;
+          const plainBody = sec.body.replace(/<[^>]+>/g, " ");
+          const haystack = (
+            sec.title +
+            " " +
+            (sec.tags || []).join(" ") +
+            " " +
+            plainBody
+          )
+            .toLowerCase()
+            .trim();
+          return haystack.includes(query);
+        });
+      },
+      [search, tab, favorites]
+    );
+
+    const handleToggleFavorite = function (id) {
+      setFavorites(function (prev) {
+        const next = new Set(prev);
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        return next;
+      });
+    };
+
+    const favoritesCount = favorites.size;
+
+    return (
+      <div className="app-shell">
+        <header>
+          <div className="app-title">
+            <div className="app-title-main">
+              <h1>NALHN RMO O&amp;G Handbook</h1>
+              <span>Lyell McEwin &amp; Modbury • 2025</span>
+            </div>
+            <div className="badge">On-the-go Guide</div>
+          </div>
+          <label className="search-bar">
+            <span className="search-icon">⌕</span>
+            <input
+              type="search"
+              placeholder="Search handover, PPH, TOP, BAUH…"
+              value={search}
+              onChange={function (e) {
+                setSearch(e.target.value);
+              }}
+            />
+          </label>
+          <div className="tabs">
+            {TABS.map(function (t) {
+              return (
+                <button
+                  key={t.id}
+                  className={"tab" + (tab === t.id ? " active" : "")}
+                  onClick={function () {
+                    setTab(t.id);
+                  }}
+                >
+                  {t.iconDot && <span className="tab-dot" />}
+                  {t.label}
+                  {t.id === "favourites" && favoritesCount > 0 && (
+                    <span style={{ fontSize: "0.7rem", opacity: 0.8 }}>
+                      ({favoritesCount})
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </header>
+
+        <main>
+          <EmergencyCard currentTab={tab} />
+
+          <section className="section-list">
+            {filteredSections.length === 0 ? (
+              <div className="empty-state">
+                No sections match your search.&nbsp;
+                {tab === "favourites" && favoritesCount === 0
+                  ? "Tap the star on any card to add it to favourites."
+                  : "Try another term (e.g. “VTE”, “miscarriage”, “COFFEE”)."}
+              </div>
+            ) : (
+              filteredSections.map(function (sec) {
+                return (
+                  <SectionCard
+                    key={sec.id}
+                    section={sec}
+                    isFavorite={favorites.has(sec.id)}
+                    onToggleFavorite={function () {
+                      handleToggleFavorite(sec.id);
+                    }}
+                  />
+                );
+              })
+            )}
+          </section>
+        </main>
+      </div>
+    );
+  }
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  root.render(<App />);
+</script>
+
+
+  <!-- Service worker registration -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("sw.js")
+          .catch((err) => {
+            console.log("Service worker registration failed:", err);
+          });
+      });
+    }
+  </script>
+</body>
+</html>
