@@ -1,4 +1,4 @@
-const CACHE_NAME = "nalhn-rmo-og-handbook-v1";
+const CACHE_NAME = "nalhn-rmo-og-handbook-v2";
 const OFFLINE_URLS = [
   "./",
   "./index.html",
