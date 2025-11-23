@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#ffffff" />
-
+  
   <style>
     :root {
       /* Light theme default */
@@ -383,7 +383,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 
-  <script type="text/babel">
+<script type="text/babel">
   const { useState, useEffect, useMemo } = React;
 
   // Content comes from external data file so it can be updated separately
@@ -411,6 +411,8 @@
   ];
 
   const FAVORITES_KEY = "nalhn-rmo-handbook-favourites";
+  const USERS_KEY = "nalhn-rmo-handbook-users";
+  const CURRENT_USER_KEY = "nalhn-rmo-handbook-current-user";
 
   function loadFavorites() {
     try {
@@ -427,6 +429,47 @@
     try {
       const arr = Array.from(set);
       window.localStorage.setItem(FAVORITES_KEY, JSON.stringify(arr));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function loadUsers() {
+    try {
+      const stored = window.localStorage.getItem(USERS_KEY);
+      if (!stored) return [];
+      const arr = JSON.parse(stored);
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveUsers(users) {
+    try {
+      window.localStorage.setItem(USERS_KEY, JSON.stringify(users));
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function loadCurrentUser() {
+    try {
+      const stored = window.localStorage.getItem(CURRENT_USER_KEY);
+      if (!stored) return null;
+      return JSON.parse(stored);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveCurrentUser(user) {
+    try {
+      if (user) {
+        window.localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+      } else {
+        window.localStorage.removeItem(CURRENT_USER_KEY);
+      }
     } catch (e) {
       // ignore
     }
@@ -524,11 +567,278 @@
     );
   }
 
+  function LoginScreen(props) {
+    const [mode, setMode] = useState("login"); // "login" or "signup"
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      var trimmedEmail = email.trim().toLowerCase();
+
+      if (!trimmedEmail) {
+        setError("Please enter your email.");
+        return;
+      }
+      if (trimmedEmail.indexOf("@") === -1) {
+        setError("Please enter a valid email address.");
+        return;
+      }
+      if (!password) {
+        setError("Please enter a password.");
+        return;
+      }
+
+      if (mode === "signup") {
+        if (password.length < 6) {
+          setError("Password should be at least 6 characters.");
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError("Passwords do not match.");
+          return;
+        }
+
+        // Check if user already exists
+        var existing = props.users.find(function (u) {
+          return u.email === trimmedEmail;
+        });
+        if (existing) {
+          setError("An account with this email already exists. Please log in.");
+          return;
+        }
+
+        var newUser = { email: trimmedEmail, password: password };
+        var newUsers = props.users.concat([newUser]);
+        props.onUsersChange(newUsers);
+        props.onAuthenticated({ email: trimmedEmail });
+        setError("");
+      } else {
+        // login
+        var user = props.users.find(function (u) {
+          return u.email === trimmedEmail;
+        });
+        if (!user) {
+          setError("No account found with that email. Try signing up.");
+          return;
+        }
+        if (user.password !== password) {
+          setError("Incorrect password. Please try again.");
+          return;
+        }
+        props.onAuthenticated({ email: trimmedEmail });
+        setError("");
+      }
+    }
+
+    return (
+      <div className="app-shell">
+        <header>
+          <div className="app-title">
+            <div className="app-title-main">
+              <h1>NALHN RMO O&amp;G Handbook</h1>
+              <span>Sign in to continue</span>
+            </div>
+            <div className="badge">Login required</div>
+          </div>
+        </header>
+        <main style={{ marginTop: "16px" }}>
+          <div className="section-card">
+            <div style={{ display: "flex", gap: "8px", marginBottom: "8px" }}>
+              <button
+                type="button"
+                onClick={function () {
+                  setMode("login");
+                  setError("");
+                }}
+                style={{
+                  flex: 1,
+                  padding: "6px 10px",
+                  borderRadius: "999px",
+                  border: mode === "login"
+                    ? "1px solid var(--accent)"
+                    : "1px solid var(--border)",
+                  background: mode === "login"
+                    ? "var(--accent-soft)"
+                    : "var(--bg-soft)",
+                  cursor: "pointer",
+                  fontSize: "0.85rem"
+                }}
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                onClick={function () {
+                  setMode("signup");
+                  setError("");
+                }}
+                style={{
+                  flex: 1,
+                  padding: "6px 10px",
+                  borderRadius: "999px",
+                  border: mode === "signup"
+                    ? "1px solid var(--accent)"
+                    : "1px solid var(--border)",
+                  background: mode === "signup"
+                    ? "var(--accent-soft)"
+                    : "var(--bg-soft)",
+                  cursor: "pointer",
+                  fontSize: "0.85rem"
+                }}
+              >
+                Sign up
+              </button>
+            </div>
+
+            <h2 style={{ marginTop: 0, fontSize: "1rem" }}>
+              {mode === "login" ? "Log in" : "Create an account"}
+            </h2>
+            <p style={{ fontSize: "0.85rem", color: "var(--muted)" }}>
+              Use your personal email and a password to access the RMO handbook on this device.
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.8rem",
+                  marginBottom: "4px"
+                }}
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={function (e) {
+                  setEmail(e.target.value);
+                }}
+                placeholder="you@example.com"
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: "999px",
+                  border: "1px solid var(--border)",
+                  fontSize: "0.9rem",
+                  outline: "none",
+                  marginBottom: "8px"
+                }}
+              />
+              <label
+                style={{
+                  display: "block",
+                  fontSize: "0.8rem",
+                  marginBottom: "4px"
+                }}
+              >
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={function (e) {
+                  setPassword(e.target.value);
+                }}
+                placeholder="Enter password"
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: "999px",
+                  border: "1px solid var(--border)",
+                  fontSize: "0.9rem",
+                  outline: "none",
+                  marginBottom: "8px"
+                }}
+              />
+              {mode === "signup" && (
+                <div>
+                  <label
+                    style={{
+                      display: "block",
+                      fontSize: "0.8rem",
+                      marginBottom: "4px"
+                    }}
+                  >
+                    Confirm password
+                  </label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={function (e) {
+                      setConfirmPassword(e.target.value);
+                    }}
+                    placeholder="Re-enter password"
+                    style={{
+                      width: "100%",
+                      padding: "8px 10px",
+                      borderRadius: "999px",
+                      border: "1px solid var(--border)",
+                      fontSize: "0.9rem",
+                      outline: "none",
+                      marginBottom: "8px"
+                    }}
+                  />
+                </div>
+              )}
+              {error && (
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#b91c1c",
+                    marginBottom: "8px"
+                  }}
+                >
+                  {error}
+                </div>
+              )}
+              <button
+                type="submit"
+                style={{
+                  width: "100%",
+                  padding: "8px 10px",
+                  borderRadius: "999px",
+                  border: "none",
+                  fontSize: "0.9rem",
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  background:
+                    "linear-gradient(135deg, var(--accent), #16a34a)",
+                  color: "#ffffff",
+                  boxShadow: "var(--shadow-soft)"
+                }}
+              >
+                {mode === "login" ? "Log in" : "Sign up"}
+              </button>
+            </form>
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--muted)",
+                marginTop: "10px"
+              }}
+            >
+              Note: Accounts are stored only on this device&apos;s browser (local storage). This login is not suitable for protecting sensitive patient data.
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   function App() {
     const [search, setSearch] = useState("");
     const [tab, setTab] = useState("all");
     const [favorites, setFavorites] = useState(function () {
       return loadFavorites();
+    });
+    const [users, setUsers] = useState(function () {
+      return loadUsers();
+    });
+    const [currentUser, setCurrentUser] = useState(function () {
+      return loadCurrentUser();
     });
 
     useEffect(
@@ -536,6 +846,20 @@
         saveFavorites(favorites);
       },
       [favorites]
+    );
+
+    useEffect(
+      function () {
+        saveUsers(users);
+      },
+      [users]
+    );
+
+    useEffect(
+      function () {
+        saveCurrentUser(currentUser);
+      },
+      [currentUser]
     );
 
     const filteredSections = useMemo(
@@ -563,7 +887,9 @@
       [search, tab, favorites]
     );
 
-    const handleToggleFavorite = function (id) {
+    const favoritesCount = favorites.size;
+
+    function handleToggleFavorite(id) {
       setFavorites(function (prev) {
         const next = new Set(prev);
         if (next.has(id)) {
@@ -573,10 +899,28 @@
         }
         return next;
       });
-    };
+    }
 
-    const favoritesCount = favorites.size;
+    function handleAuthenticated(user) {
+      setCurrentUser(user);
+    }
 
+    function handleLogout() {
+      setCurrentUser(null);
+    }
+
+    // If not logged in, show login screen only
+    if (!currentUser) {
+      return (
+        <LoginScreen
+          users={users}
+          onUsersChange={setUsers}
+          onAuthenticated={handleAuthenticated}
+        />
+      );
+    }
+
+    // Logged in -> show full app
     return (
       <div className="app-shell">
         <header>
@@ -585,7 +929,26 @@
               <h1>NALHN RMO O&amp;G Handbook</h1>
               <span>Lyell McEwin &amp; Modbury • 2025</span>
             </div>
-            <div className="badge">On-the-go Guide</div>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <div className="badge">
+                {currentUser.email}
+              </div>
+              <button
+                type="button"
+                onClick={handleLogout}
+                style={{
+                  border: "1px solid var(--border)",
+                  borderRadius: "999px",
+                  padding: "4px 10px",
+                  fontSize: "0.7rem",
+                  background: "var(--bg-soft)",
+                  cursor: "pointer",
+                  color: "var(--muted)"
+                }}
+              >
+                Log out
+              </button>
+            </div>
           </div>
           <label className="search-bar">
             <span className="search-icon">⌕</span>
@@ -623,7 +986,6 @@
 
         <main>
           <EmergencyCard currentTab={tab} />
-
           <section className="section-list">
             {filteredSections.length === 0 ? (
               <div className="empty-state">
@@ -655,6 +1017,7 @@
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<App />);
 </script>
+
 
 
   <!-- Service worker registration -->
